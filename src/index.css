@@ -4,6 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #8b5cf6;
+  --background-color: #f9fafb;
+  --text-color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #111827;
+    --text-color: #f9fafb;
+  }
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
 @layer base {
   html {
     @apply scroll-smooth;
@@ -47,4 +67,18 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Custom animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
