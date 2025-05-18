@@ -4,16 +4,16 @@ import type { User } from "firebase/auth";
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: User | null;
+  user: User;
   loading: boolean;
-  error: string | null;
+  error: string;
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
-  user: null,
+  user: {} as User,
   loading: false,
-  error: null,
+  error: "",
 };
 
 const authSlice = createSlice({
@@ -22,7 +22,7 @@ const authSlice = createSlice({
   reducers: {
     loginStart: (state) => {
       state.loading = true;
-      state.error = null;
+      state.error = "";
     },
     loginSuccess: (state, action: PayloadAction<User>) => {
       state.loading = false;
@@ -35,7 +35,7 @@ const authSlice = createSlice({
     },
     registerStart: (state) => {
       state.loading = true;
-      state.error = null;
+      state.error = "";
     },
     registerSuccess: (state, action: PayloadAction<User>) => {
       state.loading = false;
@@ -48,7 +48,7 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.isAuthenticated = false;
-      state.user = null;
+      state.user = {} as User;
     },
   },
 });

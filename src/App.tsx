@@ -1,20 +1,22 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { CssVarsProvider, CssBaseline } from "@mui/joy";
+import { CssBaseline, CssVarsProvider } from "@mui/joy";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Toaster } from "./components/ui/toaster";
+import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import Dashboard from "./pages/Dashboard";
-import { Toaster } from "./components/ui/toaster";
+import { store } from "./store/store";
+
+import BrowseMatches from "./pages/BrowseMatches";
+import ProfileSetupPage from "./modules/profile-setup/ProfileSetupPage";
 
 export default function App() {
   return (
     <Provider store={store}>
       <CssVarsProvider>
         <CssBaseline />
-        {/* <Router> */}
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -27,9 +29,12 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/profile-setup" element={<ProfileSetupPage />} />
+          <Route path="/browse-matches" element={<BrowseMatches />} />
+
           <Route path="/" element={<Login />} />
         </Routes>
-        {/* </Router> */}
+
         <Toaster />
       </CssVarsProvider>
     </Provider>

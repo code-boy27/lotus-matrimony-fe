@@ -2,11 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
-import { CssVarsProvider } from "@mui/joy/styles";
 import {
-  Sheet,
   Typography,
   FormControl,
   FormLabel,
@@ -25,6 +22,7 @@ import {
   loginFailure,
 } from "../store/slices/authSlice";
 import { useToast } from "../components/ui/use-toast";
+import AuthCard from "../components/AuthCard";
 
 interface LoginFormValues {
   email: string;
@@ -38,17 +36,22 @@ const loginValidationSchema = Yup.object().shape({
     .required("Password is required"),
 });
 
-const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
+const Login = (): JSX.Element => {
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  const handleForgotPassword = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    navigate("/forgot-password");
+  };
+
   const handleLogin = async (
     values: LoginFormValues,
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
-  ) => {
+  ): Promise<void> => {
     try {
       dispatch(loginStart());
       const userCredential = await login(values.email, values.password);
@@ -76,7 +79,7 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (): Promise<void> => {
     try {
       dispatch(loginStart());
       const userCredential = await signInWithGoogle();
@@ -98,203 +101,132 @@ const Login = () => {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.5 },
-    },
-  };
-
   return (
-    <CssVarsProvider>
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <motion.div
-          className="w-full max-w-md"
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-        >
-          <Sheet
-            variant="outlined"
-            className="rounded-xl shadow-xl overflow-hidden"
-            sx={{
-              p: 4,
-              borderRadius: "xl",
-              boxShadow: "lg",
-              backgroundColor: "background.surface",
-              backgroundImage: `url('/green-bg.svg')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <motion.div
-              variants={itemVariants}
-              className="flex justify-center mb-4"
-            >
-              <img src="/lotus-logo.png" alt="Lotus Logo" />
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <Typography
-                level="h3"
-                className="text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-purple-500 mb-2"
-              >
-                Welcome Back
-              </Typography>
-              <Typography level="body-sm" className="text-center mb-6">
-                Sign in to continue to your account
-              </Typography>
-            </motion.div>
+    <AuthCard
+      title="Welcome Back"
+      subtitle="Sign in to continue to your account"
+    >
+      <Formik
+        initialValues={{ email: "", password: "" }}
+        validationSchema={loginValidationSchema}
+        onSubmit={handleLogin}
+      >
+        {({ errors, touched, isSubmitting }) => (
+          <Form>
+            <div className="space-y-4">
+              <FormControl error={touched.email && Boolean(errors.email)}>
+                <FormLabel>Email</FormLabel>
+                <Field
+                  as={Input}
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  fullWidth
+                />
+                {touched.email && errors.email && (
+                  <FormHelperText>{errors.email}</FormHelperText>
+                )}
+              </FormControl>
 
-            <Formik
-              initialValues={{ email: "", password: "" }}
-              validationSchema={loginValidationSchema}
-              onSubmit={handleLogin}
-            >
-              {({ errors, touched, isSubmitting }) => (
-                <Form>
-                  <motion.div className="space-y-4" variants={itemVariants}>
-                    <FormControl error={touched.email && Boolean(errors.email)}>
-                      <FormLabel>Email</FormLabel>
-                      <Field
-                        as={Input}
-                        name="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        startDecorator={<i className="fas fa-envelope"></i>}
-                        fullWidth
-                      />
-                      {touched.email && errors.email && (
-                        <FormHelperText>{errors.email}</FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <FormControl
-                      error={touched.password && Boolean(errors.password)}
-                    >
-                      <FormLabel>Password</FormLabel>
-                      <Field
-                        as={Input}
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        endDecorator={
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            color="neutral"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        }
-                        fullWidth
-                      />
-                      {touched.password && errors.password && (
-                        <FormHelperText>{errors.password}</FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <div className="flex justify-end">
-                      <Link
-                        to="/forgot-password"
-                        className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      fullWidth
-                      loading={isSubmitting}
-                      variant="solid"
-                      color="primary"
-                      className="mt-4"
-                    >
-                      {isSubmitting ? (
-                        <CircularProgress size="sm" />
-                      ) : (
-                        "Sign In"
-                      )}
-                    </Button>
-                  </motion.div>
-
-                  <motion.div variants={itemVariants} className="mt-6">
-                    <Divider>
-                      <Typography level="body-xs" className="text-gray-500">
-                        OR CONTINUE WITH
-                      </Typography>
-                    </Divider>
-                  </motion.div>
-
-                  <motion.div
-                    variants={itemVariants}
-                    className="mt-6 flex flex-col gap-2"
-                  >
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      fullWidth
-                      onClick={handleGoogleLogin}
-                      startDecorator={
-                        <img
-                          src="/google-icon.svg"
-                          alt="Google Icon"
-                          width="24"
-                          height="24"
-                        />
-                      }
-                      sx={{
-                        backgroundColor: "white",
-                        color: "black",
-                        "&:hover": {
-                          backgroundColor: "#f0f0f0",
-                        },
-                      }}
-                    >
-                      Google
-                    </Button>
-                    {/* <Button
-                      variant="outlined"
+              <FormControl error={touched.password && Boolean(errors.password)}>
+                <FormLabel>Password</FormLabel>
+                <Field
+                  as={Input}
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  endDecorator={
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
                       color="neutral"
-                      fullWidth
-                      startDecorator={<GitHub />}
                     >
-                      GitHub
-                    </Button> */}
-                  </motion.div>
-                </Form>
-              )}
-            </Formik>
-
-            <motion.div variants={itemVariants} className="mt-6 text-center">
-              <Typography level="body-sm">
-                Don't have an account?{" "}
-                <Link
-                  to="/register"
-                  className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  }
+                  fullWidth
+                />
+                {touched.password && errors.password && (
+                  <FormHelperText>{errors.password}</FormHelperText>
+                )}
+              </FormControl>
+              <div className="flex justify-end">
+                <Typography
+                  level="body-sm"
+                  sx={{
+                    color: "primary.500",
+                    cursor: "pointer",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                  onClick={handleForgotPassword}
                 >
-                  Sign up
-                </Link>
-              </Typography>
-            </motion.div>
-          </Sheet>
-        </motion.div>
+                  Forgot password?
+                </Typography>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                fullWidth
+                loading={isSubmitting}
+                variant="solid"
+                color="primary"
+                className="mt-4"
+              >
+                {isSubmitting ? <CircularProgress size="sm" /> : "Sign In"}
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+
+      <div className="mt-6">
+        <Divider>
+          <Typography level="body-xs" className="text-gray-500">
+            OR CONTINUE WITH
+          </Typography>
+        </Divider>
       </div>
-    </CssVarsProvider>
+
+      <div className="mt-6 flex flex-col gap-2">
+        <Button
+          variant="outlined"
+          color="primary"
+          fullWidth
+          onClick={handleGoogleLogin}
+          startDecorator={
+            <img
+              src="/google-icon.svg"
+              alt="Google Icon"
+              width="24"
+              height="24"
+            />
+          }
+          sx={{
+            backgroundColor: "white",
+            color: "black",
+            "&:hover": {
+              backgroundColor: "#f0f0f0",
+            },
+          }}
+        >
+          Google
+        </Button>
+      </div>
+
+      <div className="mt-6 text-center">
+        <Typography level="body-sm">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Sign up
+          </Link>
+        </Typography>
+      </div>
+    </AuthCard>
   );
 };
 

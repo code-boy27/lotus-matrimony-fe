@@ -2,29 +2,34 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { motion } from "framer-motion";
 import {
   Button,
   FormControl,
   FormLabel,
   Input,
   Typography,
-  Box,
   CircularProgress,
 } from "@mui/joy";
 import { useToast } from "../components/ui/use-toast";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/config";
+import AuthCard from "../components/AuthCard";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
 });
 
-export default function ForgotPassword() {
-  const [loading, setLoading] = useState(false);
+interface ForgotPasswordFormValues {
+  email: string;
+}
+
+export default function ForgotPassword(): JSX.Element {
+  const [loading, setLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const handleResetPassword = async (values: { email: string }) => {
+  const handleResetPassword = async (
+    values: ForgotPasswordFormValues
+  ): Promise<void> => {
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, values.email);
@@ -44,85 +49,47 @@ export default function ForgotPassword() {
     }
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.5 },
-    },
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen flex items-center justify-center"
+    <AuthCard
+      title="Forgot Password"
+      subtitle="Enter your email address and we'll send you a link to reset your password"
     >
-      <Box
-        className="border"
-        sx={{
-          p: 4,
-          borderRadius: "xl",
-          boxShadow: "lg",
-          backgroundColor: "background.surface",
-          backgroundImage: `url('/green-bg.svg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      <Formik
+        initialValues={{ email: "" }}
+        validationSchema={validationSchema}
+        onSubmit={handleResetPassword}
       >
-        <motion.div
-          variants={itemVariants}
-          className="flex justify-center mb-4"
-        >
-          <img src="/lotus-logo.png" alt="Lotus Logo" className="h-56 w-96" />
-        </motion.div>
-        <Typography level="h2" sx={{ mb: 2, textAlign: "center" }}>
-          Forgot Password
-        </Typography>
-        <Typography level="body-sm" sx={{ mb: 3, textAlign: "center" }}>
-          Enter your email address and we'll send you a link to reset your
-          password
-        </Typography>
+        {({ errors, touched }) => (
+          <Form className="space-y-4">
+            <FormControl error={touched.email && !!errors.email}>
+              <FormLabel>Email</FormLabel>
+              <Field
+                as={Input}
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                fullWidth
+              />
+              {touched.email && errors.email && (
+                <Typography level="body-sm" color="danger">
+                  {errors.email}
+                </Typography>
+              )}
+            </FormControl>
 
-        <Formik
-          initialValues={{ email: "" }}
-          validationSchema={validationSchema}
-          onSubmit={handleResetPassword}
-        >
-          {({ errors, touched }) => (
-            <Form className="space-y-4">
-              <FormControl error={touched.email && !!errors.email}>
-                <FormLabel>Email</FormLabel>
-                <Field
-                  as={Input}
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  fullWidth
-                />
-                {touched.email && errors.email && (
-                  <Typography level="body-sm" color="danger">
-                    {errors.email}
-                  </Typography>
-                )}
-              </FormControl>
+            <Button type="submit" fullWidth disabled={loading} sx={{ mt: 2 }}>
+              {loading ? <CircularProgress size="sm" /> : "Reset Password"}
+            </Button>
+          </Form>
+        )}
+      </Formik>
 
-              <Button type="submit" fullWidth disabled={loading} sx={{ mt: 2 }}>
-                {loading ? <CircularProgress size="sm" /> : "Reset Password"}
-              </Button>
-            </Form>
-          )}
-        </Formik>
-
-        <Typography level="body-sm" sx={{ mt: 3, textAlign: "center" }}>
-          Remember your password?{" "}
-          <Link to="/login" className="text-primary hover:underline">
-            Login
-          </Link>
-        </Typography>
-      </Box>
-    </motion.div>
+      <Typography level="body-sm" sx={{ mt: 3, textAlign: "center" }}>
+        Remember your password?{" "}
+        <Link to="/login" className="text-primary hover:underline">
+          Login
+        </Link>
+      </Typography>
+    </AuthCard>
   );
 }
