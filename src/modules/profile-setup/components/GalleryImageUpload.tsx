@@ -9,6 +9,7 @@ import {
 } from "@mui/joy";
 import { AddPhotoAlternate, Delete } from "@mui/icons-material";
 import type { ProfileImageData } from "../../../types/profile";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 interface GalleryImageUploadProps {
   galleryImages: ProfileImageData[];
@@ -23,6 +24,8 @@ const GalleryImageUpload: React.FC<GalleryImageUploadProps> = ({
   onRemoveImage,
   onSetMainImage,
 }) => {
+  const { t } = useLanguage();
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       onAddImage(e.target.files[0]);
@@ -33,7 +36,7 @@ const GalleryImageUpload: React.FC<GalleryImageUploadProps> = ({
     <Card>
       <CardContent>
         <div className="flex items-center gap-2 mb-6">
-          <Typography level="title-md">Photo Gallery</Typography>
+          <Typography level="title-md">{t("profile.photoGallery")}</Typography>
         </div>
 
         <Grid container spacing={2}>
@@ -60,7 +63,7 @@ const GalleryImageUpload: React.FC<GalleryImageUploadProps> = ({
                   className="absolute bottom-0 left-0 right-0 rounded-none"
                   onClick={() => onSetMainImage(index)}
                 >
-                  Set as Main
+                  {t("profile.setAsMain")}
                 </Button>
               </div>
             </Grid>
@@ -76,7 +79,7 @@ const GalleryImageUpload: React.FC<GalleryImageUploadProps> = ({
               />
               <div className="text-center">
                 <AddPhotoAlternate className="text-4xl mb-2" />
-                <Typography level="body-sm">Add Photo</Typography>
+                <Typography level="body-sm">{t("profile.addPhoto")}</Typography>
               </div>
             </label>
           </Grid>

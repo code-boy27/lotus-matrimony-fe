@@ -1,5 +1,7 @@
 export interface PublicProfileData {
-  name: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
   gender: string;
   birthDate: string;
   photoURL: string;
@@ -10,6 +12,7 @@ export interface PublicProfileData {
   occupation: string;
   location: string;
   about: string;
+  casteReligion: string;
 }
 
 export interface PrivateProfileData {

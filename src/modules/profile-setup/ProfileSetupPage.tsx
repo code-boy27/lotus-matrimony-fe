@@ -1,10 +1,10 @@
-import { ArrowBack, Save } from "@mui/icons-material";
-import { Button, Grid, IconButton, Typography } from "@mui/joy";
+import { Save } from "@mui/icons-material";
+import { Button, Grid } from "@mui/joy";
 import type { FormikProps } from "formik";
 import { Formik } from "formik";
 import { motion } from "framer-motion";
-import React, { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
+import MainLayout from "../../components/layout/MainLayout";
 import { useProfileForm } from "../../hooks/useProfileForm";
 import type { ProfileFormValues } from "../../types/profile";
 import { ProfileSchema } from "../../validations/profileSchema";
@@ -14,10 +14,11 @@ import ContactInfoForm from "./components/ContactInfoForm";
 import EducationCareerForm from "./components/EducationCareerForm";
 import GalleryImageUpload from "./components/GalleryImageUpload";
 import ProfileImageUpload from "./components/ProfileImageUpload";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 const ProfileSetupPage = () => {
-  const navigate = useNavigate();
   const formikRef = useRef<FormikProps<ProfileFormValues> | null>(null);
+  const { t } = useLanguage();
 
   const {
     initialValues,
@@ -32,39 +33,13 @@ const ProfileSetupPage = () => {
   } = useProfileForm();
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen bg-background"
-    >
-      <div className="p-4 flex justify-between items-center border-b border-divider">
-        <div className="flex items-center gap-2">
-          <IconButton
-            variant="plain"
-            color="neutral"
-            onClick={() => navigate("/dashboard")}
-          >
-            <ArrowBack />
-          </IconButton>
-          <Typography level="title-lg">Edit Profile</Typography>
-        </div>
-        <Button
-          variant="solid"
-          color="primary"
-          startDecorator={<Save />}
-          loading={loading}
-          onClick={() => {
-            if (formikRef.current) {
-              formikRef.current.handleSubmit();
-            }
-          }}
-        >
-          Save Profile
-        </Button>
-      </div>
-
-      <div className="p-8 max-w-7xl mx-auto">
+    <MainLayout title={t("profile.editProfile")}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen bg-background"
+      >
         <Formik
           initialValues={initialValues}
           validationSchema={ProfileSchema}
@@ -82,10 +57,13 @@ const ProfileSetupPage = () => {
               <Grid container spacing={3}>
                 {/* Profile Image Section */}
                 <Grid xs={12} md={4}>
-                  <ProfileImageUpload
-                    profileImage={mainImage}
-                    onImageChange={handleMainImageChange}
-                  />
+                  <div className="h-full flex flex-col">
+                    <ProfileImageUpload
+                      profileImage={mainImage}
+                      onImageChange={handleMainImageChange}
+                      className="max-h-[300px]"
+                    />
+                  </div>
                 </Grid>
 
                 {/* Basic Information - Public Data */}
@@ -125,15 +103,16 @@ const ProfileSetupPage = () => {
                   size="lg"
                   startDecorator={<Save />}
                   loading={loading}
+                  className="bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 hover:from-violet-600 hover:via-fuchsia-600 hover:to-pink-600 text-white"
                 >
-                  Save Profile
+                  {t("profile.saveProfile")}
                 </Button>
               </div>
             </form>
           )}
         </Formik>
-      </div>
-    </motion.div>
+      </motion.div>
+    </MainLayout>
   );
 };
 

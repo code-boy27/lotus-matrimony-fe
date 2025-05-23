@@ -1,7 +1,9 @@
 import React from "react";
-import { Typography, Button, Alert, Stack, Card, CardContent } from "@mui/joy";
+import { Typography, Button, Card, CardContent, Alert, Box } from "@mui/joy";
 import { CloudUpload, PublicOutlined, LockOutlined } from "@mui/icons-material";
 import type { ProfileImageData } from "../../../types/profile";
+import { useLanguage } from "../../../contexts/LanguageContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfileImageUploadProps {
   profileImage: ProfileImageData;
@@ -12,6 +14,8 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   profileImage,
   onImageChange,
 }) => {
+  const { t } = useLanguage();
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       onImageChange(e.target.files[0]);
@@ -21,64 +25,112 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   return (
     <Card>
       <CardContent>
-        <div className="flex flex-col items-center gap-4">
-          <div
-            className={`w-[200px] h-[200px] rounded-full overflow-hidden mb-4 border border-divider flex items-center justify-center bg-cover bg-center ${
-              profileImage.url ? "" : "bg-gray-100"
-            }`}
-            style={
-              profileImage.url
-                ? { backgroundImage: `url(${profileImage.url})` }
-                : undefined
-            }
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={t("profile.photoGallery")}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
           >
-            {!profileImage.url && (
-              <Typography level="body-lg" color="neutral">
-                No Image
-              </Typography>
-            )}
-          </div>
+            <Typography level="title-md" className="mb-4">
+              {t("profile.photoGallery")}
+            </Typography>
+          </motion.div>
+        </AnimatePresence>
 
+        <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-divider bg-cover bg-center mb-4">
+          {profileImage.url ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-full h-full"
+              style={{ backgroundImage: `url(${profileImage.url})` }}
+            />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center justify-center h-full bg-background"
+            >
+              <Typography level="body-sm" textColor="neutral.500">
+                {t("profile.noImage")}
+              </Typography>
+            </motion.div>
+          )}
+        </div>
+
+        <label className="block w-full">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
           <Button
-            component="label"
+            component="span"
             variant="outlined"
             color="neutral"
             startDecorator={<CloudUpload />}
+            className="w-full"
           >
-            Upload Photo
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
+            {profileImage.url
+              ? t("profile.changePhoto")
+              : t("profile.uploadPhoto")}
           </Button>
+        </label>
 
-          <Alert color="warning" size="sm">
-            Upload a clear profile photo to increase your profile visibility
-          </Alert>
-
-          {/* Legend for public/private data */}
-          <div className="mt-6 w-full">
-            <Typography level="body-sm" className="mb-4">
-              Data Visibility:
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Alert
+            variant="soft"
+            color="neutral"
+            className="mt-4"
+            startDecorator={<CloudUpload />}
+          >
+            <Typography level="body-sm">
+              {t("profile.uploadPhotoMessage")}
             </Typography>
-            <Stack direction="row" spacing={2} className="mb-2">
-              <div className="flex items-center gap-2">
-                <PublicOutlined fontSize="small" />
-                <Typography level="body-sm">Public - Visible to all</Typography>
-              </div>
-            </Stack>
-            <Stack direction="row" spacing={2}>
-              <div className="flex items-center gap-2">
-                <LockOutlined fontSize="small" />
-                <Typography level="body-sm">
-                  Private - Visible to subscribers
-                </Typography>
-              </div>
-            </Stack>
-          </div>
-        </div>
+          </Alert>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+          className="mt-4"
+        >
+          <Typography level="body-sm" className="mb-2">
+            {t("profile.dataVisibility")}
+          </Typography>
+          <Box className="space-y-2">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              className="flex items-center gap-2"
+            >
+              <PublicOutlined fontSize="small" color="success" />
+              <Typography level="body-sm">{t("profile.public")}</Typography>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+              className="flex items-center gap-2"
+            >
+              <LockOutlined fontSize="small" color="warning" />
+              <Typography level="body-sm">{t("profile.private")}</Typography>
+            </motion.div>
+          </Box>
+        </motion.div>
       </CardContent>
     </Card>
   );
